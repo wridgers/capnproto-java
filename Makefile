@@ -1,3 +1,4 @@
+PREFIX = /usr/local
 CAPNP_CXX_FLAGS=$(shell pkg-config capnp --cflags --libs)
 
 ifeq ($(CAPNP_CXX_FLAGS),)
@@ -33,3 +34,15 @@ addressbook : capnpc-java
 	PWD=pwd
 	mkdir -p examples/src/main/generated
 	capnp compile -I$(PWD)/compiler/src/main/schema --src-prefix=examples/src/main/schema -o./capnpc-java:examples/src/main/generated examples/src/main/schema/addressbook.capnp
+
+.PHONY : install
+install : capnpc-java
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	mkdir -p $(DESTDIR)$(PREFIX)/include/capnp
+	cp compiler/src/main/schema/capnp/java.capnp $(DESTDIR)$(PREFIX)/include/capnp/java.capnp
+	cp capnpc-java $(DESTDIR)$(PREFIX)/bin/capnpc-java
+
+.PHONY : uninstall
+uninstall :
+	rm -f $(DESTDIR)$(PREFIX)/include/capnp/java.capnp
+	rm -f capnpc-java $(DESTDIR)$(PREFIX)/bin/capnpc-java
